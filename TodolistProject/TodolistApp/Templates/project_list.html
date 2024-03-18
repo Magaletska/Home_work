@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage your lists</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arial,sans-serif" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0; /* Серый цвет для фона */
+            font-family: Arial, sans-serif; /* Шрифт Arial, sans-serif */
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 40px;
+            font-size: 36px;
+            color: #0056b3; /* Синий цвет для заголовка */
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .button-container button,
+        .button-container .btn {
+            padding: 10px 20px;
+            margin: 10px;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: Arial, sans-serif; /* Шрифт Arial, sans-serif */
+        }
+
+        .button-container button {
+            background-color: #007bff; /* Синий цвет для кнопки "Tasks" */
+        }
+
+        .button-container .btn {
+            background-color: #0056b3; /* Синий цвет для кнопки "Add task" */
+            text-decoration: none;
+        }
+
+        .button-container button:hover,
+        .button-container .btn:hover {
+            background-color: #0056b3; /* Изменение цвета при наведении */
+        }
+
+        #projects-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #projects-modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        footer {
+            width: 100%;
+            background-color: #007bff; /* Синий цвет для футера */
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .project-link {
+            display: block;
+            margin-bottom: 10px;
+            color: #000;
+            text-decoration: none;
+        }
+
+        .project-link:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Let's manage your to-do lists</h1>
+    <div class="button-container">
+        <button id="projects-button">My lists</button>
+        <a href="{% url 'add_project' %}" class="btn">New list</a>
+    </div>
+    <div id="projects-modal">
+        <div id="projects-modal-content">
+
+            {% for project in projects %}
+
+            <a href="{% url 'task_list' project_id=project.id %}" class="project-link">{{ project.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Project For ITStep.</p>
+    </footer>
+
+    <script>
+
+        const projectsButton = document.getElementById('projects-button');
+        const projectsModal = document.getElementById('projects-modal');
+
+        projectsButton.addEventListener('click', () => {
+            projectsModal.style.display = 'flex';
+        });
+
+
+        projectsModal.addEventListener('click', (event) => {
+            if (event.target === projectsModal) {
+                projectsModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+

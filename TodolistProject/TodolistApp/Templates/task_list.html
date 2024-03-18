@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arial,sans-serif" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #0056b3;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="text"],
+        select,
+        button {
+            width: 100%;
+        }
+
+        .btn {
+            background-color: #0056b3;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #0056b3;
+            color: #fff;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-btn a {
+            color: #0056b3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn a:hover {
+            color: #007bff;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task List</h1>
+        <form id="taskForm">
+            <input type="text" id="title" placeholder="Title" required>
+            <input type="text" id="description" placeholder="Description" required>
+            <select id="priority" required>
+                <option value="" disabled selected>Priority</option>
+                <option value="high" style="color: red;">High</option>
+                <option value="medium" style="color: green;">Medium</option>
+                <option value="low" style="color: blue;">Low</option>
+            </select>
+            <button type="button" onclick="saveTask()" class="btn">Save Task</button>
+        </form>
+
+        <table id="taskTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="taskTableBody">
+            </tbody>
+        </table>
+
+        <div class="back-btn">
+            <a href="{% url 'project_list' %}">Back to Lists</a>
+        </div>
+    </div>
+
+    <script>
+        function saveTask() {
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('description');
+            const priorityInput = document.getElementById('priority');
+            const status = 'No'; // Default status set to 'No'
+
+            const projectId = '{{ project.id }}'; // Assuming you have access to the project ID
+            let tasks = JSON.parse(localStorage.getItem(`tasks_${projectId}`)) || [];
+            const newTask = {
+                title: titleInput.value,
+                description: descriptionInput.value,
+                priority: priorityInput.value,
+                status
+            };
+            tasks.push(newTask);
+            localStorage.setItem(`tasks_${projectId}`, JSON.stringify(tasks));
+            updateTaskTable(projectId);
+
+            titleInput.value = '';
+            descriptionInput.value = '';
+            priorityInput.value = '';
+        }
+
+        function deleteTask(projectId, row) {
+            const rowIndex = row.parentNode.parentNode.rowIndex;
+            const tasks = JSON.parse(localStorage.getItem(`tasks_${projectId}`));
+            tasks.splice(rowIndex - 1, 1);
+            localStorage.setItem(`tasks_${projectId}`, JSON.stringify(tasks));
+            updateTaskTable(projectId);
+        }
+
+        function updateTaskTable(projectId) {
+            const taskTableBody = document.getElementById('taskTableBody');
+            taskTableBody.innerHTML = '';
+
+            const tasks = JSON.parse(localStorage.getItem(`tasks_${projectId}`)) || [];
+            tasks.forEach(task => {
+                const newRow = taskTableBody.insertRow();
+                newRow.innerHTML = `
+                    <td>${task.title}</td>
+                    <td>${task.description}</td>
+                    <td style="color: ${getColor(task.priority)};">${task.priority}</td>
+                    <td>${task.status}</td>
+                    <td><button onclick="deleteTask('${projectId}', this)">Delete</button></td>
+                `;
+            });
+        }
+
+        function getColor(priority) {
+            switch (priority) {
+                case 'high':
+                    return 'red';
+                case 'medium':
+                    return 'green';
+                case 'low':
+                    return 'blue';
+                default:
+                    return 'black';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectId = '{{ project.id }}'; // Assuming you have access to the project ID
+            updateTaskTable(projectId);
+        });
+    </script>
+</body>
+</html>
+
+
